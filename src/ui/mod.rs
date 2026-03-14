@@ -1,14 +1,14 @@
-pub mod theme;
-pub mod toolbar;
-pub mod step_sequencer;
+pub mod channel_rack;
+pub mod mixer;
 pub mod piano_roll;
 pub mod playlist;
-pub mod mixer;
-pub mod channel_rack;
+pub mod step_sequencer;
+pub mod theme;
+pub mod toolbar;
 pub mod widgets;
 
-use eframe::egui;
 use crate::bridge::shared_state::EngineSnapshot;
+use eframe::egui;
 
 #[derive(Debug, Default)]
 pub struct UiState {

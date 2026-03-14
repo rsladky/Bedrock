@@ -1,5 +1,5 @@
-use crate::ui::UiState;
 use crate::project::project::Project;
+use crate::ui::UiState;
 
 #[derive(Debug, Clone)]
 pub enum EngineEvent {

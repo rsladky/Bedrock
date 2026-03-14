@@ -1,8 +1,8 @@
-use serde::{Deserialize, Serialize};
-use crate::project::channel::Channel;
-use crate::project::pattern::Pattern;
 use crate::project::arrangement::Arrangement;
+use crate::project::channel::Channel;
 use crate::project::mixer_state::MixerChannel;
+use crate::project::pattern::Pattern;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Project {
@@ -33,10 +33,16 @@ impl Default for Project {
             channels,
             patterns: vec![pattern],
             arrangement: Arrangement::default(),
-            mixer: (0..4).map(|i| {
-                let name = if i == 0 { "Master".to_string() } else { format!("Ch{}", i) };
-                MixerChannel::new(i, &name)
-            }).collect(),
+            mixer: (0..4)
+                .map(|i| {
+                    let name = if i == 0 {
+                        "Master".to_string()
+                    } else {
+                        format!("Ch{}", i)
+                    };
+                    MixerChannel::new(i, &name)
+                })
+                .collect(),
         }
     }
 }

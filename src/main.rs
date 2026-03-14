@@ -18,8 +18,8 @@ fn main() -> anyhow::Result<()> {
 }
 
 mod app;
-mod engine;
-mod project;
 mod bridge;
-mod ui;
+mod engine;
 mod midi;
+mod project;
+mod ui;

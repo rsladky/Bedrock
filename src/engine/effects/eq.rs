@@ -13,7 +13,13 @@ impl Default for Eq {
         low.set_lowshelf(200.0, 48000.0, 0.0);
         let mut high = BiquadFilter::default();
         high.set_highshelf(5000.0, 48000.0, 0.0);
-        Self { low_gain: 0.0, mid_gain: 0.0, high_gain: 0.0, low, high }
+        Self {
+            low_gain: 0.0,
+            mid_gain: 0.0,
+            high_gain: 0.0,
+            low,
+            high,
+        }
     }
 }
 
@@ -26,10 +32,15 @@ impl Eq {
 
 #[derive(Default, Clone)]
 pub struct BiquadFilter {
-    b0: f32, b1: f32, b2: f32,
-    a1: f32, a2: f32,
-    x1: f32, x2: f32,
-    y1: f32, y2: f32,
+    b0: f32,
+    b1: f32,
+    b2: f32,
+    a1: f32,
+    a2: f32,
+    x1: f32,
+    x2: f32,
+    y1: f32,
+    y2: f32,
 }
 
 impl BiquadFilter {
@@ -45,8 +56,11 @@ impl BiquadFilter {
         self.a1 = -2.0 * ((a - 1.0) + (a + 1.0) * c);
         self.a2 = (a + 1.0) + (a - 1.0) * c - beta;
         // Normalize
-        self.b0 /= a0; self.b1 /= a0; self.b2 /= a0;
-        self.a1 /= a0; self.a2 /= a0;
+        self.b0 /= a0;
+        self.b1 /= a0;
+        self.b2 /= a0;
+        self.a1 /= a0;
+        self.a2 /= a0;
     }
 
     pub fn set_highshelf(&mut self, freq: f32, sample_rate: f32, gain_db: f32) {
@@ -60,15 +74,21 @@ impl BiquadFilter {
         let a0 = (a + 1.0) - (a - 1.0) * c + beta;
         self.a1 = 2.0 * ((a - 1.0) - (a + 1.0) * c);
         self.a2 = (a + 1.0) - (a - 1.0) * c - beta;
-        self.b0 /= a0; self.b1 /= a0; self.b2 /= a0;
-        self.a1 /= a0; self.a2 /= a0;
+        self.b0 /= a0;
+        self.b1 /= a0;
+        self.b2 /= a0;
+        self.a1 /= a0;
+        self.a2 /= a0;
     }
 
     pub fn process(&mut self, x: f32) -> f32 {
         let y = self.b0 * x + self.b1 * self.x1 + self.b2 * self.x2
-              - self.a1 * self.y1 - self.a2 * self.y2;
-        self.x2 = self.x1; self.x1 = x;
-        self.y2 = self.y1; self.y1 = y;
+            - self.a1 * self.y1
+            - self.a2 * self.y2;
+        self.x2 = self.x1;
+        self.x1 = x;
+        self.y2 = self.y1;
+        self.y1 = y;
         y
     }
 }

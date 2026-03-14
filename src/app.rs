@@ -1,8 +1,8 @@
-use eframe::egui;
 use crate::bridge::Bridge;
 use crate::engine::AudioEngine;
 use crate::project::project::Project;
-use crate::ui::{UiState, ActiveView};
+use crate::ui::{ActiveView, UiState};
+use eframe::egui;
 
 pub struct BedrockApp {
     pub project: Project,
@@ -42,33 +42,76 @@ impl eframe::App for BedrockApp {
         });
 
         // Bottom mixer
-        egui::TopBottomPanel::bottom("mixer").min_height(180.0).show(ctx, |ui| {
-            crate::ui::mixer::show(ui, &mut self.bridge, &mut self.ui_state, &mut self.project);
-        });
+        egui::TopBottomPanel::bottom("mixer")
+            .min_height(180.0)
+            .show(ctx, |ui| {
+                crate::ui::mixer::show(ui, &mut self.bridge, &mut self.ui_state, &mut self.project);
+            });
 
         // Left channel rack
-        egui::SidePanel::left("channel_rack").min_width(180.0).max_width(240.0).show(ctx, |ui| {
-            crate::ui::channel_rack::show(ui, &mut self.bridge, &mut self.ui_state, &mut self.project);
-        });
+        egui::SidePanel::left("channel_rack")
+            .min_width(180.0)
+            .max_width(240.0)
+            .show(ctx, |ui| {
+                crate::ui::channel_rack::show(
+                    ui,
+                    &mut self.bridge,
+                    &mut self.ui_state,
+                    &mut self.project,
+                );
+            });
 
         // Central panel
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
-                if ui.selectable_label(self.ui_state.active_view == ActiveView::StepSequencer, "Step Seq").clicked() {
+                if ui
+                    .selectable_label(
+                        self.ui_state.active_view == ActiveView::StepSequencer,
+                        "Step Seq",
+                    )
+                    .clicked()
+                {
                     self.ui_state.active_view = ActiveView::StepSequencer;
                 }
-                if ui.selectable_label(self.ui_state.active_view == ActiveView::PianoRoll, "Piano Roll").clicked() {
+                if ui
+                    .selectable_label(
+                        self.ui_state.active_view == ActiveView::PianoRoll,
+                        "Piano Roll",
+                    )
+                    .clicked()
+                {
                     self.ui_state.active_view = ActiveView::PianoRoll;
                 }
-                if ui.selectable_label(self.ui_state.active_view == ActiveView::Playlist, "Playlist").clicked() {
+                if ui
+                    .selectable_label(
+                        self.ui_state.active_view == ActiveView::Playlist,
+                        "Playlist",
+                    )
+                    .clicked()
+                {
                     self.ui_state.active_view = ActiveView::Playlist;
                 }
             });
             ui.separator();
             match self.ui_state.active_view {
-                ActiveView::StepSequencer => crate::ui::step_sequencer::show(ui, &mut self.bridge, &mut self.ui_state, &mut self.project),
-                ActiveView::PianoRoll => crate::ui::piano_roll::show(ui, &mut self.bridge, &mut self.ui_state, &mut self.project),
-                ActiveView::Playlist => crate::ui::playlist::show(ui, &mut self.bridge, &mut self.ui_state, &mut self.project),
+                ActiveView::StepSequencer => crate::ui::step_sequencer::show(
+                    ui,
+                    &mut self.bridge,
+                    &mut self.ui_state,
+                    &mut self.project,
+                ),
+                ActiveView::PianoRoll => crate::ui::piano_roll::show(
+                    ui,
+                    &mut self.bridge,
+                    &mut self.ui_state,
+                    &mut self.project,
+                ),
+                ActiveView::Playlist => crate::ui::playlist::show(
+                    ui,
+                    &mut self.bridge,
+                    &mut self.ui_state,
+                    &mut self.project,
+                ),
             }
         });
 

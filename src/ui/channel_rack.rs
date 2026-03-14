@@ -1,11 +1,16 @@
-use eframe::egui::{self, Color32};
-use crate::bridge::Bridge;
-use crate::ui::UiState;
-use crate::project::project::Project;
-use crate::project::channel::Channel;
 use super::theme;
+use crate::bridge::Bridge;
+use crate::project::channel::Channel;
+use crate::project::project::Project;
+use crate::ui::UiState;
+use eframe::egui::{self, Color32};
 
-pub fn show(ui: &mut egui::Ui, _bridge: &mut Bridge, ui_state: &mut UiState, project: &mut Project) {
+pub fn show(
+    ui: &mut egui::Ui,
+    _bridge: &mut Bridge,
+    ui_state: &mut UiState,
+    project: &mut Project,
+) {
     ui.heading("Channels");
     ui.separator();
 
@@ -16,7 +21,11 @@ pub fn show(ui: &mut egui::Ui, _bridge: &mut Bridge, ui_state: &mut UiState, pro
             let color = Color32::from_rgb(ch.color[0], ch.color[1], ch.color[2]);
             let selected = ui_state.selected_channel == i;
 
-            let bg = if selected { theme::FL_ORANGE_DIM } else { theme::BG_MID };
+            let bg = if selected {
+                theme::FL_ORANGE_DIM
+            } else {
+                theme::BG_MID
+            };
             let (rect, response) = ui.allocate_exact_size(
                 egui::vec2(ui.available_width() - 4.0, 32.0),
                 egui::Sense::click(),
@@ -26,7 +35,8 @@ pub fn show(ui: &mut egui::Ui, _bridge: &mut Bridge, ui_state: &mut UiState, pro
             // Color swatch
             ui.painter().rect_filled(
                 egui::Rect::from_min_size(rect.min + egui::vec2(4.0, 6.0), egui::vec2(6.0, 20.0)),
-                1.0, color,
+                1.0,
+                color,
             );
 
             // Name
@@ -48,10 +58,17 @@ pub fn show(ui: &mut egui::Ui, _bridge: &mut Bridge, ui_state: &mut UiState, pro
         // Add channel button
         if ui.button("+ Add Channel").clicked() {
             let id = project.channels.len();
-            project.channels.push(Channel::new(id, &format!("Ch{}", id + 1), [0x88, 0x88, 0xff]));
+            project.channels.push(Channel::new(
+                id,
+                &format!("Ch{}", id + 1),
+                [0x88, 0x88, 0xff],
+            ));
             // Resize step grid
             for pattern in &mut project.patterns {
-                pattern.step_grid.cells.push(vec![0u8; pattern.step_grid.steps as usize]);
+                pattern
+                    .step_grid
+                    .cells
+                    .push(vec![0u8; pattern.step_grid.steps as usize]);
             }
         }
     });

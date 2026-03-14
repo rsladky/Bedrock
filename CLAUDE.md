@@ -92,6 +92,26 @@ Theme constants are in `src/ui/theme.rs`: `BG_DARK` (`#1e1e1e`), `FL_ORANGE` (`#
 - Apple Silicon defaults to **48000 Hz** — always query `device.default_output_config()`, never hardcode sample rate.
 - Audio permission prompt appears on first run (microphone/output entitlement).
 
+## Code Conventions
+
+- **Naming**: snake_case for files/functions, PascalCase for types/enums. Enum variants are PascalCase with no prefix (e.g. `Waveform::Sine`, not `WaveformSine`).
+- **Derive order**: `Clone, Copy, Debug, Default, serde::Serialize, serde::Deserialize` (Copy only for small value types).
+- **Module structure**: one `mod.rs` per directory re-exports public items. Leaf files are named for the primary type they define (e.g. `synth.rs` → `VoicePool`, `Waveform`).
+- **Pub fields**: data structs use `pub` fields directly (no getters) — keeps things simple for a learning project.
+- **UI widgets**: custom widgets live in `src/ui/widgets/` as separate files, one per widget.
+- **Constants**: theme colors are `pub const` in `src/ui/theme.rs`. Use these instead of inline hex values.
+- **Formatting**: `.rustfmt.toml` at repo root — run `cargo fmt` before committing.
+- **Lints**: `cargo clippy -- -D warnings` must pass.
+
+## What to Avoid
+
+- **Heap allocation in `fill_buffer()`**: no `Vec::push`, `String`, `Box::new`, `format!`, or `println!` on the audio thread. Use pre-allocated buffers.
+- **Blocking in the audio callback**: no `Mutex::lock()` (use `try_lock`), no file I/O, no network. The only exception is the snapshot write every 512 frames which uses `parking_lot::Mutex::try_lock`.
+- **Hardcoded sample rates**: always derive from `cpal::StreamConfig`. 44100 is wrong on Apple Silicon (48000).
+- **Wall-clock time for audio timing**: use `playhead_sample` as ground truth, never `Instant::now()` or `SystemTime`.
+- **Large messages over rtrb**: the ring buffer is fixed-size. Use `Box<T>` for large payloads (see `SetPattern(Box<Pattern>)`).
+- **Unwrap in production paths**: use `anyhow::Result` or handle errors. `unwrap()` is acceptable only in tests or one-time init code.
+
 ## Adding a New EngineCommand
 
 1. Add variant to `src/bridge/commands.rs`

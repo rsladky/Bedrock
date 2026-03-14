@@ -2,12 +2,12 @@ pub mod commands;
 pub mod events;
 pub mod shared_state;
 
-use rtrb::{RingBuffer, Producer, Consumer};
-use std::sync::Arc;
-use parking_lot::Mutex;
 use commands::EngineCommand;
 use events::EngineEvent;
+use parking_lot::Mutex;
+use rtrb::{Consumer, Producer, RingBuffer};
 use shared_state::EngineSnapshot;
+use std::sync::Arc;
 
 pub struct Bridge {
     pub cmd_tx: Producer<EngineCommand>,
@@ -21,8 +21,16 @@ impl Bridge {
         let (event_tx, event_rx) = RingBuffer::new(256);
         let snapshot = Arc::new(Mutex::new(EngineSnapshot::default()));
         (
-            Bridge { cmd_tx, event_rx, snapshot: Arc::clone(&snapshot) },
-            EngineHandle { cmd_rx, event_tx, snapshot },
+            Bridge {
+                cmd_tx,
+                event_rx,
+                snapshot: Arc::clone(&snapshot),
+            },
+            EngineHandle {
+                cmd_rx,
+                event_tx,
+                snapshot,
+            },
         )
     }
     pub fn send(&mut self, cmd: EngineCommand) {

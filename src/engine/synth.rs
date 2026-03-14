@@ -57,14 +57,19 @@ impl AdsrEnvelope {
                 self.time += dt;
                 let a = self.attack.max(0.001);
                 self.level = (self.time / a).min(1.0);
-                if self.time >= a { self.phase = EnvPhase::Decay; self.time = 0.0; }
+                if self.time >= a {
+                    self.phase = EnvPhase::Decay;
+                    self.time = 0.0;
+                }
                 self.level
             }
             EnvPhase::Decay => {
                 self.time += dt;
                 let d = self.decay.max(0.001);
                 self.level = 1.0 - (1.0 - self.sustain) * (self.time / d).min(1.0);
-                if self.time >= d { self.phase = EnvPhase::Sustain; }
+                if self.time >= d {
+                    self.phase = EnvPhase::Sustain;
+                }
                 self.level
             }
             EnvPhase::Sustain => self.sustain,
@@ -72,12 +77,17 @@ impl AdsrEnvelope {
                 self.time += dt;
                 let r = self.release.max(0.001);
                 self.level = self.sustain * (1.0 - (self.time / r).min(1.0));
-                if self.time >= r { self.phase = EnvPhase::Idle; self.level = 0.0; }
+                if self.time >= r {
+                    self.phase = EnvPhase::Idle;
+                    self.level = 0.0;
+                }
                 self.level
             }
         }
     }
-    pub fn is_idle(&self) -> bool { self.phase == EnvPhase::Idle }
+    pub fn is_idle(&self) -> bool {
+        self.phase == EnvPhase::Idle
+    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -96,14 +106,21 @@ impl Voice {
     }
 
     pub fn render_sample(&mut self, sample_rate: f64) -> f32 {
-        if !self.active { return 0.0; }
+        if !self.active {
+            return 0.0;
+        }
         let dt = 1.0 / sample_rate as f32;
         let env = self.env.tick(dt);
-        if self.env.is_idle() { self.active = false; return 0.0; }
+        if self.env.is_idle() {
+            self.active = false;
+            return 0.0;
+        }
         let freq = Self::frequency(self.pitch);
         let out = (self.phase * std::f64::consts::TAU).sin() as f32;
         self.phase += freq / sample_rate;
-        if self.phase >= 1.0 { self.phase -= 1.0; }
+        if self.phase >= 1.0 {
+            self.phase -= 1.0;
+        }
         out * env * self.velocity
     }
 }
@@ -114,13 +131,14 @@ pub struct VoicePool {
 
 impl VoicePool {
     pub fn new() -> Self {
-        Self { voices: std::array::from_fn(|_| Voice::default()) }
+        Self {
+            voices: std::array::from_fn(|_| Voice::default()),
+        }
     }
 
     pub fn note_on(&mut self, channel_id: usize, pitch: u8, velocity: u8) {
         // Find idle or steal oldest
-        let slot = self.voices.iter().position(|v| !v.active)
-            .unwrap_or(0);
+        let slot = self.voices.iter().position(|v| !v.active).unwrap_or(0);
         let v = &mut self.voices[slot];
         v.active = true;
         v.channel_id = channel_id;

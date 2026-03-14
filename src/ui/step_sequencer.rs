@@ -1,13 +1,15 @@
-use eframe::egui::{self, Color32};
-use crate::bridge::Bridge;
-use crate::bridge::commands::EngineCommand;
-use crate::ui::UiState;
-use crate::project::project::Project;
 use super::theme;
+use crate::bridge::commands::EngineCommand;
+use crate::bridge::Bridge;
+use crate::project::project::Project;
+use crate::ui::UiState;
+use eframe::egui::{self, Color32};
 
 pub fn show(ui: &mut egui::Ui, bridge: &mut Bridge, ui_state: &mut UiState, project: &mut Project) {
     let pattern_idx = ui_state.selected_pattern;
-    let Some(pattern) = project.patterns.get_mut(pattern_idx) else { return; };
+    let Some(pattern) = project.patterns.get_mut(pattern_idx) else {
+        return;
+    };
     let num_channels = project.channels.len();
     let num_steps = pattern.step_grid.steps as usize;
     let active_step = ui_state.snapshot.active_step;
@@ -25,7 +27,9 @@ pub fn show(ui: &mut egui::Ui, bridge: &mut Bridge, ui_state: &mut UiState, proj
                 ui.colored_label(color, format!("{:<8}", ch.name));
 
                 for step in 0..num_steps {
-                    let velocity = project.patterns.get(pattern_idx)
+                    let velocity = project
+                        .patterns
+                        .get(pattern_idx)
                         .and_then(|p| p.step_grid.cells.get(ch_idx))
                         .and_then(|r| r.get(step))
                         .copied()
@@ -45,7 +49,11 @@ pub fn show(ui: &mut egui::Ui, bridge: &mut Bridge, ui_state: &mut UiState, proj
 
                     let (rect, response) = ui.allocate_exact_size(cell_size, egui::Sense::click());
                     ui.painter().rect_filled(rect, 3.0, fill);
-                    ui.painter().rect_stroke(rect, 3.0, egui::Stroke::new(1.0, Color32::from_rgb(0x55, 0x55, 0x55)));
+                    ui.painter().rect_stroke(
+                        rect,
+                        3.0,
+                        egui::Stroke::new(1.0, Color32::from_rgb(0x55, 0x55, 0x55)),
+                    );
 
                     if response.clicked() {
                         if let Some(pattern2) = project.patterns.get_mut(pattern_idx) {

@@ -1,4 +1,4 @@
-use eframe::egui::{self, Color32, Rect, Pos2};
+use eframe::egui::{self, Color32, Pos2, Rect};
 
 pub struct Fader<'a> {
     value: &'a mut f32,
@@ -9,9 +9,18 @@ pub struct Fader<'a> {
 
 impl<'a> Fader<'a> {
     pub fn new(value: &'a mut f32) -> Self {
-        Self { value, range: 0.0..=1.5, width: 20.0, height: 80.0 }
+        Self {
+            value,
+            range: 0.0..=1.5,
+            width: 20.0,
+            height: 80.0,
+        }
     }
-    pub fn size(mut self, width: f32, height: f32) -> Self { self.width = width; self.height = height; self }
+    pub fn size(mut self, width: f32, height: f32) -> Self {
+        self.width = width;
+        self.height = height;
+        self
+    }
 }
 
 impl<'a> egui::Widget for Fader<'a> {
@@ -34,7 +43,8 @@ impl<'a> egui::Widget for Fader<'a> {
         painter.rect_filled(rect, 2.0, Color32::from_rgb(0x18, 0x18, 0x18));
 
         // Thumb position
-        let normalized = (*self.value - self.range.start()) / (*self.range.end() - self.range.start());
+        let normalized =
+            (*self.value - self.range.start()) / (*self.range.end() - self.range.start());
         let thumb_y = rect.max.y - normalized * rect.height();
         let thumb_rect = Rect::from_center_size(
             Pos2::new(rect.center().x, thumb_y),

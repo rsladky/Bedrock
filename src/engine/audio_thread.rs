@@ -1,9 +1,9 @@
-use crate::bridge::EngineHandle;
 use crate::bridge::commands::EngineCommand;
 use crate::bridge::events::EngineEvent;
 use crate::bridge::shared_state::EngineSnapshot;
-use crate::engine::synth::VoicePool;
+use crate::bridge::EngineHandle;
 use crate::engine::sequencer::StepSequencer;
+use crate::engine::synth::VoicePool;
 
 pub struct AudioState {
     sample_rate: f64,
@@ -54,7 +54,10 @@ impl AudioState {
                             self.voices.note_on(ch, 60 + ch as u8 * 5, 100);
                         }
                     }
-                    let _ = self.handle.event_tx.push(EngineEvent::StepAdvanced { step });
+                    let _ = self
+                        .handle
+                        .event_tx
+                        .push(EngineEvent::StepAdvanced { step });
                 }
                 self.playhead_sample += 1;
             }
@@ -100,10 +103,17 @@ impl AudioState {
                 self.voices.all_notes_off();
             }
             EngineCommand::SetBpm(bpm) => self.bpm = bpm,
-            EngineCommand::NoteOn { channel_id, pitch, velocity } => {
+            EngineCommand::NoteOn {
+                channel_id,
+                pitch,
+                velocity,
+            } => {
                 self.voices.note_on(channel_id, pitch, velocity);
             }
-            EngineCommand::NoteOff { channel_id, pitch: _ } => {
+            EngineCommand::NoteOff {
+                channel_id,
+                pitch: _,
+            } => {
                 self.voices.note_off(channel_id);
             }
             EngineCommand::SetPattern(pattern) => {

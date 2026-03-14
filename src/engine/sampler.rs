@@ -33,7 +33,11 @@ impl Sampler {
         }
         // Hermite interpolation
         let frac = self.position - idx as f64;
-        let s0 = self.sample_data.get(idx.saturating_sub(1)).copied().unwrap_or(0.0);
+        let s0 = self
+            .sample_data
+            .get(idx.saturating_sub(1))
+            .copied()
+            .unwrap_or(0.0);
         let s1 = self.sample_data.get(idx).copied().unwrap_or(0.0);
         let s2 = self.sample_data.get(idx + 1).copied().unwrap_or(0.0);
         let s3 = self.sample_data.get(idx + 2).copied().unwrap_or(0.0);

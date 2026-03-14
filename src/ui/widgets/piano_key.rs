@@ -25,7 +25,11 @@ impl egui::Widget for PianoKey {
             Color32::from_rgb(0xcc, 0xcc, 0xcc)
         };
         ui.painter().rect_filled(rect, 1.0, color);
-        ui.painter().rect_stroke(rect, 1.0, egui::Stroke::new(0.5, Color32::from_rgb(0x55, 0x55, 0x55)));
+        ui.painter().rect_stroke(
+            rect,
+            1.0,
+            egui::Stroke::new(0.5, Color32::from_rgb(0x55, 0x55, 0x55)),
+        );
 
         response
     }

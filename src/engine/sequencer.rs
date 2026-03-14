@@ -34,11 +34,15 @@ impl StepSequencer {
     }
 
     pub fn num_channels(&self) -> usize {
-        self.pattern.as_ref().map(|p| p.step_grid.cells.len()).unwrap_or(0)
+        self.pattern
+            .as_ref()
+            .map(|p| p.step_grid.cells.len())
+            .unwrap_or(0)
     }
 
     pub fn is_step_active(&self, channel: usize, step: usize) -> bool {
-        self.pattern.as_ref()
+        self.pattern
+            .as_ref()
             .and_then(|p| p.step_grid.cells.get(channel))
             .and_then(|row| row.get(step))
             .map(|&v| v > 0)

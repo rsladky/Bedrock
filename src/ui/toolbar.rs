@@ -1,9 +1,9 @@
-use eframe::egui;
-use crate::bridge::Bridge;
-use crate::bridge::commands::EngineCommand;
-use crate::ui::UiState;
-use crate::project::project::Project;
 use super::theme;
+use crate::bridge::commands::EngineCommand;
+use crate::bridge::Bridge;
+use crate::project::project::Project;
+use crate::ui::UiState;
+use eframe::egui;
 
 pub fn show(ui: &mut egui::Ui, bridge: &mut Bridge, ui_state: &mut UiState, project: &mut Project) {
     ui.horizontal(|ui| {
@@ -11,16 +11,27 @@ pub fn show(ui: &mut egui::Ui, bridge: &mut Bridge, ui_state: &mut UiState, proj
 
         // Play / Stop buttons
         let playing = ui_state.snapshot.playing;
-        let play_color = if playing { theme::FL_ORANGE } else { theme::BG_LIGHT };
+        let play_color = if playing {
+            theme::FL_ORANGE
+        } else {
+            theme::BG_LIGHT
+        };
         if ui.add(egui::Button::new("▶").fill(play_color)).clicked() {
             if !playing {
                 bridge.send(EngineCommand::Play);
                 bridge.send(EngineCommand::SetPattern(Box::new(
-                    project.patterns.get(ui_state.selected_pattern).cloned().unwrap_or_default()
+                    project
+                        .patterns
+                        .get(ui_state.selected_pattern)
+                        .cloned()
+                        .unwrap_or_default(),
                 )));
             }
         }
-        if ui.add(egui::Button::new("■").fill(theme::BG_LIGHT)).clicked() {
+        if ui
+            .add(egui::Button::new("■").fill(theme::BG_LIGHT))
+            .clicked()
+        {
             bridge.send(EngineCommand::Stop);
         }
 
@@ -29,7 +40,14 @@ pub fn show(ui: &mut egui::Ui, bridge: &mut Bridge, ui_state: &mut UiState, proj
         // BPM
         ui.label("BPM:");
         let mut bpm = project.bpm;
-        if ui.add(egui::DragValue::new(&mut bpm).range(40.0..=300.0).speed(0.5)).changed() {
+        if ui
+            .add(
+                egui::DragValue::new(&mut bpm)
+                    .range(40.0..=300.0)
+                    .speed(0.5),
+            )
+            .changed()
+        {
             project.bpm = bpm;
             bridge.send(EngineCommand::SetBpm(bpm));
         }
@@ -68,6 +86,12 @@ fn draw_peak_meter(ui: &mut egui::Ui, level: f32) {
         egui::pos2(rect.min.x, rect.max.y - fill_h),
         egui::vec2(rect.width(), fill_h),
     );
-    let color = if level > 0.9 { theme::RED } else if level > 0.7 { theme::YELLOW } else { theme::GREEN };
+    let color = if level > 0.9 {
+        theme::RED
+    } else if level > 0.7 {
+        theme::YELLOW
+    } else {
+        theme::GREEN
+    };
     painter.rect_filled(fill_rect, 0.0, color);
 }
