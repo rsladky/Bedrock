@@ -1,5 +1,6 @@
 use eframe::egui;
 use crate::bridge::Bridge;
+use crate::bridge::commands::EngineCommand;
 use crate::engine::AudioEngine;
 use crate::project::project::Project;
 use crate::ui::{UiState, ActiveView};
@@ -8,6 +9,7 @@ pub struct BedrockApp {
     pub project: Project,
     pub bridge: Bridge,
     pub ui_state: UiState,
+    current_path: String,
     _engine: AudioEngine,
 }
 
@@ -21,13 +23,61 @@ impl BedrockApp {
             project,
             bridge,
             ui_state: UiState::default(),
+            current_path: "project.json".to_string(),
             _engine: engine,
         }
+    }
+
+    fn handle_shortcuts(&mut self, ctx: &egui::Context) {
+        if ctx.memory(|m| m.focused().is_some()) {
+            return;
+        }
+
+        ctx.input(|i| {
+            let playing = self.ui_state.snapshot.playing;
+
+            if i.key_pressed(egui::Key::Space) {
+                if playing {
+                    let _ = self.bridge.send(EngineCommand::Stop);
+                } else {
+                    let _ = self.bridge.send(EngineCommand::Play);
+                }
+            }
+
+            if i.key_pressed(egui::Key::Enter) {
+                let _ = self.bridge.send(EngineCommand::Stop);
+                let _ = self.bridge.send(EngineCommand::Play);
+            }
+
+            if i.key_pressed(egui::Key::Num1) {
+                self.ui_state.active_view = ActiveView::StepSequencer;
+            }
+            if i.key_pressed(egui::Key::Num2) {
+                self.ui_state.active_view = ActiveView::PianoRoll;
+            }
+            if i.key_pressed(egui::Key::Num3) {
+                self.ui_state.active_view = ActiveView::Playlist;
+            }
+
+            if i.modifiers.ctrl && i.key_pressed(egui::Key::ArrowUp) {
+                self.project.bpm = (self.project.bpm + 1.0).min(300.0);
+                let _ = self.bridge.send(EngineCommand::SetBpm(self.project.bpm));
+            }
+            if i.modifiers.ctrl && i.key_pressed(egui::Key::ArrowDown) {
+                self.project.bpm = (self.project.bpm - 1.0).max(20.0);
+                let _ = self.bridge.send(EngineCommand::SetBpm(self.project.bpm));
+            }
+
+            if i.modifiers.ctrl && i.key_pressed(egui::Key::S) {
+                let _ = self.project.save(&self.current_path);
+            }
+        });
     }
 }
 
 impl eframe::App for BedrockApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        self.handle_shortcuts(ctx);
         // Drain audio events
         while let Ok(event) = self.bridge.event_rx.pop() {
             crate::bridge::events::handle_event(event, &mut self.ui_state, &mut self.project);
